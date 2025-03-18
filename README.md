@@ -21,7 +21,7 @@ Parsezilla is a Rust-based address parsing API that leverages [libpostal](https:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/parsezilla.git
+   git clone https://github.com/wgd-modular/parsezilla.git
    cd parsezilla
    ```
 
