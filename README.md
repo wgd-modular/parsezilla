@@ -1,5 +1,5 @@
 
-# Parsezilla API
+# parsezilla 🦖
 
 Parsezilla is a Rust-based address parsing API that leverages [libpostal](https://github.com/openvenues/libpostal) via Rust bindings. It exposes an HTTP endpoint to parse addresses into structured components. Built with Actix-Web for asynchronous performance, Parsezilla also supports customizable bind addresses and ports through CLI options.
 
