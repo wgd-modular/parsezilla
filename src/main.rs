@@ -15,7 +15,7 @@ impl ParseZilla {
             expand_address: false,
             parse_address: true,
         })
-            .expect("Failed to init parsezilla context");
+        .expect("Failed to init parsezilla context");
 
         ParseZilla { ctx }
     }
@@ -125,7 +125,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(shared_state.clone())
             .service(parse_address_handler)
     })
-        .bind((bind_address.as_str(), port))?
-        .run()
-        .await
+    .bind((bind_address.as_str(), port))?
+    .run()
+    .await
 }
