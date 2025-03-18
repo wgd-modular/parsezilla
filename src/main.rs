@@ -1,8 +1,11 @@
+use actix_web::dev::Service;
 use actix_web::{App, HttpResponse, HttpServer, Responder, post, web};
 use clap::{Arg, Command};
 use colored::Colorize;
+use futures_util::FutureExt;
 use postal::{Context, InitOptions, ParseAddressOptions};
 use serde::{Deserialize, Serialize};
+use std::sync::Mutex;
 
 struct ParseZilla {
     ctx: Context,
@@ -50,7 +53,6 @@ async fn parse_address_handler(
 ) -> impl Responder {
     let mut pz = data.parsezilla.lock().unwrap();
     let result = pz.parse(&req.address);
-
     let response: Vec<ComponentResponse> = result
         .into_iter()
         .map(|(component, value)| ComponentResponse {
@@ -76,13 +78,15 @@ fn capitalize_words(input: String) -> String {
         .join(" ")
 }
 
-use std::sync::Mutex;
 struct AppState {
     parsezilla: Mutex<ParseZilla>,
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let api_key = std::env::var("PARSEZILLA_API_KEY")
+        .expect("PARSEZILLA_API_KEY environment variable not set");
+
     let matches = Command::new("Parsezilla API")
         .version("1.0")
         .about("Address parsing API using Parsezilla")
@@ -121,7 +125,22 @@ async fn main() -> std::io::Result<()> {
     );
 
     HttpServer::new(move || {
+        let api_key_clone = api_key.clone();
         App::new()
+            .wrap_fn(move |req, srv| {
+                let authorized = req
+                    .headers()
+                    .get("x-api-key")
+                    .and_then(|h| h.to_str().ok())
+                    .map(|key| key == api_key_clone)
+                    .unwrap_or(false);
+                if authorized {
+                    srv.call(req).boxed_local()
+                } else {
+                    let response = HttpResponse::Unauthorized().body("Invalid API key");
+                    Box::pin(async { Ok(req.into_response(response.map_into_boxed_body())) })
+                }
+            })
             .app_data(shared_state.clone())
             .service(parse_address_handler)
     })
