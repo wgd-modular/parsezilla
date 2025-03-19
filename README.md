@@ -35,7 +35,13 @@ Parsezilla is a Rust-based address parsing API that leverages [libpostal](https:
 
 ### Running the Server
 
-For production, the API key is loaded from the `PARSEZILLA_API_KEY` environment variable. Make sure to set it before running the server. By default, the server binds to `127.0.0.1:8080`. You can customize the bind address and port via CLI arguments:
+For production, the API key is loaded from the `PARSEZILLA_API_KEY` environment variable. Make sure to set it before running the server:
+
+```bash
+export PARSEZILLA_API_KEY=my_secret_api_key
+```
+
+By default, the server binds to `127.0.0.1:8080`. You can customize the bind address and port via CLI arguments:
 
 ```bash
 cargo run -- --bind 0.0.0.0 --port 8080
@@ -52,7 +58,7 @@ When the server starts, you'll see a colorful log message, for example:
 Send a POST request to the `/parse` endpoint with a JSON payload containing the address. For example, using `curl`:
 
 ```bash
-curl -X POST http://localhost:8080/parse      -H "Content-Type: application/json"      -d '{"address": "Apt 4 18 Downey Street, 95926 Chico"}'
+curl -X POST http://localhost:8080/parse -H "Content-Type: application/json" -H "x-api-key: my_secret_api_key" -d '{"address": "Apt 4 18 Downey Street, 95926 Chico"}'
 ```
 
 Expected response:
